@@ -340,6 +340,17 @@ class Proxy(Handler):
             self.wrap2.nowrite()
 
 
+class Timer(Handler):
+    def __init__(self, timerfd, mux):
+        Handler.__init__(self, [timerfd])
+        self.timerfd = timerfd
+        self.mux = mux
+    
+    def callback(self, sock):
+        sock.read()
+        self.mux.send(0, CMD_PING, b('timer'))
+
+
 class Mux(Handler):
 
     def __init__(self, rfile, wfile):

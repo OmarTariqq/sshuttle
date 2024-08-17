@@ -50,7 +50,8 @@ setup(
     },
     python_requires='>=3.8',
     install_requires=[
-        "pydivert; os_name=='nt'"
+        "pydivert; os_name=='nt'",
+        "linuxfd; sys_platform=='linux'"
     ],
     tests_require=[
         'pytest',

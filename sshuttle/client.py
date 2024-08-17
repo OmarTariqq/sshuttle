@@ -13,7 +13,7 @@ import sshuttle.ssnet as ssnet
 import sshuttle.ssh as ssh
 import sshuttle.ssyslog as ssyslog
 import sshuttle.sdnotify as sdnotify
-from sshuttle.ssnet import SockWrapper, Handler, Proxy, Mux, MuxWrapper
+from sshuttle.ssnet import SockWrapper, Handler, Proxy, Mux, MuxWrapper, Timer
 from sshuttle.helpers import log, debug1, debug2, debug3, Fatal, islocal, \
     resolvconf_nameservers, which, is_admin_user, RWPair
 from sshuttle.methods import get_method, Features
@@ -591,7 +591,7 @@ def ondns(listener, method, mux, handlers):
 def _main(tcp_listener, udp_listener, fw, ssh_cmd, remotename,
           python, latency_control, latency_buffer_size,
           dns_listener, seed_hosts, auto_hosts, auto_nets, daemon,
-          to_nameserver, add_cmd_delimiter, remote_shell):
+          to_nameserver, add_cmd_delimiter, remote_shell, ping_timer):
 
     helpers.logprefix = 'c : '
     debug1('Starting client with Python version %s'
@@ -797,6 +797,12 @@ def _main(tcp_listener, udp_listener, fw, ssh_cmd, remotename,
             if rv is not None:
                 raise Fatal('ssh connection to server (pid %d) exited '
                             'with returncode %d' % (serverproc.pid, rv))
+    if ping_timer:
+        import linuxfd
+
+        timerfd = linuxfd.timerfd(nonBlocking=True)
+        timerfd.settime(ping_timer, ping_timer)
+        handlers.append(Timer(timerfd, mux))
 
     while 1:
         check_ssh_alive()
@@ -810,7 +816,7 @@ def main(listenip_v6, listenip_v4,
          latency_buffer_size, dns, nslist,
          method_name, seed_hosts, auto_hosts, auto_nets,
          subnets_include, subnets_exclude, daemon, to_nameserver, pidfile,
-         user, group, sudo_pythonpath, add_cmd_delimiter, remote_shell, tmark):
+         user, group, sudo_pythonpath, add_cmd_delimiter, remote_shell, tmark, ping_timer):
 
     if not remotename:
         raise Fatal("You must use -r/--remote to specify a remote "
@@ -1159,7 +1165,7 @@ def main(listenip_v6, listenip_v4,
         return _main(tcp_listener, udp_listener, fw, ssh_cmd, remotename,
                      python, latency_control, latency_buffer_size,
                      dns_listener, seed_hosts, auto_hosts, auto_nets,
-                     daemon, to_nameserver, add_cmd_delimiter, remote_shell)
+                     daemon, to_nameserver, add_cmd_delimiter, remote_shell, ping_timer)
     finally:
         try:
             if daemon:

@@ -95,6 +95,12 @@ def main():
                 ssyslog.close_stdin()
                 ssyslog.stdout_to_syslog()
                 ssyslog.stderr_to_syslog()
+            
+            try:
+                opt.ping_timer
+            except AttributeError:
+                opt.ping_timer = None
+
             return_code = client.main(ipport_v6, ipport_v4,
                                       opt.ssh_cmd,
                                       remotename,
@@ -117,7 +123,8 @@ def main():
                                       opt.sudo_pythonpath,
                                       opt.add_cmd_delimiter,
                                       opt.remote_shell,
-                                      opt.tmark)
+                                      opt.tmark,
+                                      opt.ping_timer)
 
             if return_code == 0:
                 log('Normal exit code, exiting...')

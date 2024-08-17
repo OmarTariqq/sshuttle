@@ -1,2 +1,3 @@
 Sphinx==7.1.2
 furo==2024.8.6
+linuxfd==1.5

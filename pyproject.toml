@@ -8,6 +8,7 @@ readme = "README.rst"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+linuxfd = { version = "^1.5", platform = "linux" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"

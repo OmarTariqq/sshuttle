@@ -234,6 +234,16 @@ parser.add_argument(
     /etc/resolv.conf on remote side if not given.
     """
 )
+if sys.platform == 'linux':
+    parser.add_argument(
+        "--ping-timer",
+        metavar="SECONDS",
+        type=int,
+        default=None,
+        help="""
+        ping remote every SECONDS to keep the connection alive
+        """
+    )
 
 if sys.platform == 'win32':
     method_choices = ["auto", "windivert"]
